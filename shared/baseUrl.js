@@ -1,0 +1,1 @@
+export const baseUrl = 'https://thanhhoangcao.thanhhoang33.repl.co/';
