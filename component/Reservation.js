@@ -96,50 +96,75 @@ class Reservation extends Component {
     );
   }
 
-  obtainCalendarPermission = async () => {
-    const { status } = await Calendar.requestCalendarPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Calendar permission not granted');
-    }
-  };
+  // obtainCalendarPermission = async () => {
+  //   const { status } = await Calendar.requestCalendarPermissionsAsync();
+  //   if (status !== 'granted') {
+  //     Alert.alert('Calendar permission not granted');
+  //   }
+  // };
 
-  async addReservationToCalendar(date) {
-    await this.obtainCalendarPermission();
+  // async addReservationToCalendar(date) {
+  //   await this.obtainCalendarPermission();
     
-    const startDate = new Date(Date.parse(date));
-    const endDate = new Date(Date.parse(date) + 2 * 60 * 60 * 1000); // Adding 2 hours to the start time
+  //   const startDate = new Date(Date.parse(date));
+  //   const endDate = new Date(Date.parse(date) + 2 * 60 * 60 * 1000); // Adding 2 hours to the start time
   
-    const calendarPermission = await Calendar.requestCalendarPermissionsAsync();
-    if (calendarPermission.status === 'granted') {
-      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-      console.log('Calendars:', calendars);
+  //   const calendarPermission = await Calendar.requestCalendarPermissionsAsync();
+  //   if (calendarPermission.status === 'granted') {
+  //     const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+  //     console.log('Calendars:', calendars);
   
-      if (calendars.length > 0) {
-        const selectedCalendar = calendars[0]; // Choose the first available calendar
-        console.log('Selected Calendar:', selectedCalendar);
+  //     if (calendars.length > 0) {
+  //       const selectedCalendar = calendars[0]; // Choose the first available calendar
+  //       console.log('Selected Calendar:', selectedCalendar);
   
-        const eventDetails = {
-          title: 'Con Fusion Table Reservation',
-          startDate,
-          endDate,
-          timeZone: 'Asia/Hong_Kong',
-          location: '121, Clear Water Bay Road, Clear Water Bay, Kowloon, Hong Kong',
-        };
+  //       const eventDetails = {
+  //         title: 'Con Fusion Table Reservation',
+  //         startDate,
+  //         endDate,
+  //         timeZone: 'Asia/Hong_Kong',
+  //         location: '121, Clear Water Bay Road, Clear Water Bay, Kowloon, Hong Kong',
+  //       };
   
-        try {
-          await Calendar.createEventAsync(selectedCalendar.id, eventDetails);
-          Alert.alert('Event Added to Calendar');
-        } catch (error) {
-          console.log('Error Adding Event to Calendar:', error);
-          Alert.alert('Error Adding Event to Calendar. Please try again later.');
-        }
-      } else {
-        Alert.alert('No Calendars Found');
-      }
-    } else {
-      Alert.alert('Calendar Permission Not Granted');
+  //       try {
+  //         await Calendar.createEventAsync(selectedCalendar.id, eventDetails);
+  //         Alert.alert('Event Added to Calendar');
+  //       } catch (error) {
+  //         console.log('Error Adding Event to Calendar:', error);
+  //         Alert.alert('Error Adding Event to Calendar. Please try again later.');
+  //       }
+  //     } else {
+  //       Alert.alert('No Calendars Found');
+  //     }
+  //   } else {
+  //     Alert.alert('Calendar Permission Not Granted');
+  //   }
+  // }
+  async addReservationToCalendar(date) {
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status === 'granted') {
+      const defaultCalendarSource = { isLocalAccount: true, name: 'Expo Calendar' };
+      const newCalendarID = await Calendar.createCalendarAsync({
+        title: 'Expo Calendar',
+        color: 'blue',
+        entityType: Calendar.EntityTypes.EVENT,
+        sourceId: defaultCalendarSource.id,
+        source: defaultCalendarSource,
+        name: 'internalCalendarName',
+        ownerAccount: 'personal',
+        accessLevel: Calendar.CalendarAccessLevel.OWNER,
+      });
+      const eventId = await Calendar.createEventAsync(newCalendarID, {
+        title: 'Confusion Table Reservation',
+        startDate: date,
+        endDate: new Date(date.getTime() + 2 * 60 * 60 * 1000),
+        timeZone: 'Asia/Hong_Kong',
+        location: '121, Clear Water Bay Road, Clear Water Bay, Kowloon, Hong Kong'
+      });
+      alert('Your new event ID is: ' + eventId);
     }
   }
+
   async presentLocalNotification(date) {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status === 'granted') {
@@ -176,7 +201,7 @@ const styles = StyleSheet.create({
 class ModalContent extends Component {
   render() {
     return (
-      <View style={styles.modal}>
+      <View style={styles.modal}> 
         <Text style={styles.modalTitle}>Your Reservation</Text>
         <Text style={styles.modalText}>Number of Guests: {this.props.guests}</Text>
         <Text style={styles.modalText}>Smoking?: {this.props.smoking ? 'Yes' : 'No'}</Text>

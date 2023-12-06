@@ -4,6 +4,9 @@ import { Input } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 import { baseUrl } from '../shared/baseUrl';
 import * as ImageManipulator from 'expo-image-manipulator';
+// firebase
+import { getDatabase, ref, child, set } from 'firebase/database';
+
 class Register extends Component {
   constructor(props) {
     super(props);   
@@ -61,7 +64,12 @@ class Register extends Component {
     }
   }
   handleRegister() {
-    alert('Coming soon!');
+    const dbRef = ref(getDatabase());
+    set(child(dbRef, 'accounts/' + this.state.username), {
+      username: this.state.username,
+      password: this.state.password
+    }).then(() => { alert('Ok baby!'); })
+      .catch((error) => alert('Could not set data from firebase', error));
   }
 }
 

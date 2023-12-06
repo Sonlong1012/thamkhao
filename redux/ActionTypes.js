@@ -22,3 +22,7 @@ export const PROMOS_FAILED = 'PROMOS_FAILED';
 export const DELETE_FAVORITE = 'DELETE_FAVORITE';
 export const POST_FAVORITE = 'POST_FAVORITE';
 export const ADD_FAVORITE = 'ADD_FAVORITE';
+
+// users
+export const LOGIN_USER = 'LOGIN_USER';
+export const LOGOUT_USER = 'LOGOUT_USER';

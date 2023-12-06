@@ -6,7 +6,10 @@ import { Provider } from 'react-redux';
 // redux-persist
 import { PersistGate } from 'redux-persist/es/integration/react';
 const { persistor, store } = ConfigureStore();
-
+//fire base
+import { initializeApp } from 'firebase/app';
+const firebaseConfig = { databaseURL: 'https://reactnative-5c263-default-rtdb.asia-southeast1.firebasedatabase.app/' };
+initializeApp(firebaseConfig);
 
 class App extends Component {
   render() {

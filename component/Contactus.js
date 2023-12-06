@@ -5,8 +5,20 @@ import { Text } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
 import * as MailComposer from 'expo-mail-composer';
 import { View } from 'react-native';
+import { getDatabase, ref, child, onValue } from 'firebase/database';
 class Contactus extends Component {
-    
+    constructor(props) {
+        super(props);
+        this.state = {
+          number: '',
+          street: '',
+          district: '',
+          city: '',
+          phone: '',
+          fax: '',
+          email: ''
+        }
+      }
     render() {
         return (
             <Animatable.View animation='fadeInDown' duration={1000} delay={500}>
@@ -17,27 +29,27 @@ class Contactus extends Component {
                 </Card.Title>
                 <Card.Divider></Card.Divider>
                 <Text>
-                    121, Clear Water Bay Road 
+                {this.state.number}, {this.state.street}
                    
                 </Text>
                 <Text>
-                Clear Water Bay, Kowloon
+                {this.state.district}
                     
                 </Text>
                 <Text>
-                HONG KONG
+                {this.state.city}
                    
                 </Text>
                 <Text>
-                Tel: +852 1234 5678
+                {this.state.phone}
                    
                 </Text>
                 <Text>
-                Fax: +852 8765 4321
+                {this.state.fax}
                
                 </Text>
                 <Text>
-                Email:confusion@food.net
+                {this.state.email}
                 </Text>
                 
                 <Button title=' Compose Email' buttonStyle={{ backgroundColor: '#7cc' }}
@@ -49,6 +61,21 @@ class Contactus extends Component {
             </Animatable.View>
         );
     }
+    componentDidMount() {
+        const dbRef = ref(getDatabase());
+        onValue(child(dbRef, 'contact/'), (snapshot) => {
+          const value = snapshot.val();
+          this.setState({
+            number: value.address.number,
+            street: value.address.street,
+            district: value.address.district,
+            city: value.address.city,
+            phone: value.phone,
+            fax: value.fax,
+            email: value.email
+          });
+        });
+      }
     composeMail() {
         MailComposer.composeAsync({
           recipients: ['<th50989@gmail.com>'],

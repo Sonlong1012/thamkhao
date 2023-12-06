@@ -129,4 +129,18 @@ export const deleteFavorite = (dishId) => ({
   payload: dishId
 });
 
+
+
+
 //dispaatch type -> switchcase (dishses.js) -> state
+
+
+// users
+export const loginUser = (userinfo) => ({
+  type: ActionTypes.LOGIN_USER,
+  payload: userinfo
+});
+export const logoutUser = () => ({
+  type: ActionTypes.LOGOUT_USER,
+  payload: null
+});

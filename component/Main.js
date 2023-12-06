@@ -23,14 +23,20 @@ import Reservation from './Reservation.js';
 import Login from './Login.js';
 import Register from './Register';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { logoutUser } from '../redux/ActionCreators';
 
-
-
+// redux
+const mapStateToProps = (state) => {
+  return {
+    users: state.users
+  }
+};
 const mapDispatchToProps = (dispatch) => ({
   fetchLeaders: () => dispatch(fetchLeaders()),
   fetchDishes: () => dispatch(fetchDishes()),
   fetchComments: () => dispatch(fetchComments()),
-  fetchPromos: () => dispatch(fetchPromos())
+  fetchPromos: () => dispatch(fetchPromos()),
+  logoutUser: () => dispatch(logoutUser())
 });
 
 
@@ -45,7 +51,7 @@ class Main extends Component {
   render() {
     return (
       <NavigationContainer>
-        <MainNavigatorScreen />
+        <MainNavigatorScreen users={this.props.users} logoutUser={this.props.logoutUser} />
       </NavigationContainer>
     );
   }
@@ -156,6 +162,8 @@ function AboutNavigatorScreen() {
 
 
 function CustomDrawerContent(props) {
+  const users = props.users;
+  const logoutUser = props.logoutUser;
   return (
     <DrawerContentScrollView {...props}>
       <View style={{ backgroundColor: '#7cc', height: 80, alignItems: 'center', flexDirection: 'row' }}>
@@ -170,6 +178,11 @@ function CustomDrawerContent(props) {
       <DrawerItem label='Help'
         icon={({ focused, color, size }) => <Icon name='help' size={size} color={focused ? '#7cc' : '#ccc'} />}
         onPress={() => Linking.openURL('https://reactnavigation.org/docs/getting-started')} />
+      {
+        users.logged === false
+          ? (<DrawerItem label='Help' icon={({ focused, color, size }) => <Icon name='help' size={size} color={focused ? '#7cc' : '#ccc'} />} onPress={() => Linking.openURL('https://reactnavigation.org/docs/getting-started')} />)
+          : (<DrawerItem label={'[' + users.userinfo.username + '] Logout'} icon={({ focused, color, size }) => <Icon name='sign-out' type='font-awesome' size={size} color={focused ? '#7cc' : '#ccc'} />} onPress={() => { logoutUser(); props.navigation.navigate('HomeScreen'); }} />)
+      }
     </DrawerContentScrollView>
   );
 }
@@ -253,10 +266,13 @@ function TabNavigatorScreen() {
 
 
 
-function MainNavigatorScreen() {
+function MainNavigatorScreen(props) {
+  const users = props.users;
+  const logoutUser = props.logoutUser;
   const MainNavigator = createDrawerNavigator();
+  
   return (
-    <MainNavigator.Navigator initialRouteName='HomeScreen' drawerContent={(props) => <CustomDrawerContent {...props} />}>
+    <MainNavigator.Navigator initialRouteName='HomeScreen' drawerContent={(props) => <CustomDrawerContent {...props}  users={users} logoutUser={logoutUser} />}>
       <MainNavigator.Screen name='HomeScreen' component={HomeNavigatorScreen}
         options={{
           title: 'Home', headerShown: false,
@@ -282,22 +298,22 @@ function MainNavigatorScreen() {
           title: 'MyComponent', headerShown: false,
           drawerIcon: ({ focused, size }) => (<Icon name='add' size={size} color={focused ? '#7cc' : '#ccc'} />)
         }} /> */}
-      <MainNavigator.Screen name='ReservationScreen' component={ReservationNavigatorScreen}
-        options={{
-          title: 'Reserve Table', headerShown: false,
-          drawerIcon: ({ focused, size }) => (<Icon name='cutlery' type='font-awesome' size={size} color={focused ? '#7cc' : '#ccc'} />)
-        }} />
+      {
+        users.logged === true
+          ? (<MainNavigator.Screen name='ReservationScreen' component={ReservationNavigatorScreen} options={{ title: 'Reserve Table', headerShown: false, drawerIcon: ({ focused, size }) => (<Icon name='cutlery' type='font-awesome' size={size} color={focused ? '#7cc' : '#ccc'} />) }} />)
+          : null
+      }
       <MainNavigator.Screen name='FavoritesScreen' component={FavoritesNavigatorScreen}
         options={{
           title: 'My Favorites', headerShown: false,
           drawerIcon: ({ focused, size }) => (<Icon name='heart' type='font-awesome' size={size} color={focused ? '#7cc' : '#ccc'} />)
         }} />
 
-      <MainNavigator.Screen  name='LoginScreen' component={LoginNavigatorScreen}
-        options={{
-          title: 'Login', headerShown: false,
-          drawerIcon: ({ focused, size }) => (<Icon name='sign-in' type='font-awesome' size={size} color={focused ? '#7cc' : '#ccc'} />)
-        }} />
+      {
+        users.logged === false
+          ? (<MainNavigator.Screen name='LoginScreen' component={LoginNavigatorScreen} options={{ title: 'Login', headerShown: false, drawerIcon: ({ focused, size }) => (<Icon name='sign-in' type='font-awesome' size={size} color={focused ? '#7cc' : '#ccc'} />) }} />)
+          : null
+      }
 
     </MainNavigator.Navigator>
   );
@@ -306,4 +322,4 @@ function MainNavigatorScreen() {
 
 
 
-export default connect(null, mapDispatchToProps)(Main);
+export default connect(mapStateToProps, mapDispatchToProps)(Main);
